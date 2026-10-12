@@ -16,4 +16,9 @@ public class ConcreteMember implements Member, Comparable<Member>{
     public int compareTo(Member member) {
         return Integer.compare(member.getID() - id, 0);
     }
+
+    @Override
+    public String toString() {
+        return "Member (ID = " + id + ")";
+    }
 }
