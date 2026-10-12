@@ -32,6 +32,10 @@ public class Container {
         }
     }
 
+    public int size() {
+        return memberList.size();
+    }
+
     private boolean containsId(Integer searchedId, int pos) {
         Integer memberID = memberList.get(pos).getID();
         if (Objects.equals(memberID, searchedId)) {
