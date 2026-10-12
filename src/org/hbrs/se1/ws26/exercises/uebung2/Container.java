@@ -6,8 +6,12 @@ import java.util.Objects;
 public class Container {
     private ArrayList<Member> memberList;
 
+    public Container() {
+        memberList = new ArrayList<>();
+    }
+
     public void addMember(Member member) throws ContainerException {
-        if (containsId(member.getID(), memberList.size())) {
+        if (getPosition(member.getID(), 0, memberList.size() - 1) != -1) {
             throw new ContainerException(
                     "Das Member-Objekt mit der ID " + member.getID() + " ist be-\n" +
                     "reits vorhanden!");
@@ -18,11 +22,12 @@ public class Container {
     }
 
     public String deleteMember(Integer id) {
-        if (!containsId(id, memberList.size())) {
+        int pos = getPosition(id, 0, memberList.size() - 1);
+        if (pos == -1) {
             return "Member-Objekt mit der ID " + id + " existiert nicht!";
         }
 
-        memberList.remove(containsIdGetPos(id, memberList.size()) / 2);
+        memberList.remove(pos);
         return "Member-Objekt erfolgreich entfernt!";
     }
 
@@ -36,23 +41,20 @@ public class Container {
         return memberList.size();
     }
 
-    private boolean containsId(Integer searchedId, int pos) {
-        Integer memberID = memberList.get(pos).getID();
-        if (Objects.equals(memberID, searchedId)) {
-            return true;
-        } else if (searchedId < memberID) {
-            return containsId(searchedId, (pos-1) / 2);
+    private int getPosition(Integer searchedId, int left, int right) {
+        if (left > right) {
+            return -1;
         }
-        return containsId(searchedId, (memberList.size() - searchedId + 1) / 2);
-    }
 
-    private int containsIdGetPos(Integer searchedId, int pos) {
+        int pos = (left + right) / 2;
         Integer memberID = memberList.get(pos).getID();
+
         if (Objects.equals(memberID, searchedId)) {
             return pos;
         } else if (searchedId < memberID) {
-            return containsIdGetPos(searchedId, (pos-1) / 2);
+            return getPosition(searchedId, left, pos - 1);
         }
-        return containsIdGetPos(searchedId, (memberList.size() - searchedId + 1) / 2);
+
+        return getPosition(searchedId, pos + 1, right);
     }
 }
