@@ -26,6 +26,12 @@ public class Container {
         return "Member-Objekt erfolgreich entfernt!";
     }
 
+    public void dump() {
+        for (Member member : memberList) {
+            System.out.println(member);
+        }
+    }
+
     private boolean containsId(Integer searchedId, int pos) {
         Integer memberID = memberList.get(pos).getID();
         if (Objects.equals(memberID, searchedId)) {
