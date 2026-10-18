@@ -25,12 +25,9 @@ public class PersistenceStrategyStream<Member> implements PersistenceStrategy<Me
      * (Last Access: Oct, 12th 2026)
      */
     public void save(List<Member> member) throws PersistenceException  {
-        try {
-            FileOutputStream fos = new FileOutputStream(location);
-            ObjectOutputStream oos = new ObjectOutputStream(fos);
+        try (FileOutputStream fos = new FileOutputStream(location);
+             ObjectOutputStream oos = new ObjectOutputStream(fos)) {
             oos.writeObject(member);
-            oos.close();
-            fos.close();
         } catch (IOException e) {
             throw new PersistenceException(PersistenceException.ExceptionType.ConnectionNotAvailable,
                     "File Location konnte nicht gefunden werden!");
@@ -64,31 +61,35 @@ public class PersistenceStrategyStream<Member> implements PersistenceStrategy<Me
         // return newListe
 
         // and finally close the streams
-        List<Member> memberList = new ArrayList<>();
-        ObjectInputStream ois = null;
-        FileInputStream fis = null;
-        try {
-            fis = new FileInputStream(location);
-            ois = new ObjectInputStream(fis);
-        } catch (IOException e) {
-            throw new PersistenceException(PersistenceException.ExceptionType.ConnectionNotAvailable,
-                    "File Location konnte nicht gefunden werden!");
-        }
 
-        try {
+        try (ObjectInputStream ois =
+                     new ObjectInputStream(new FileInputStream(location))) {
             Object o = ois.readObject();
 
-            if (o instanceof List<?>) {
-                memberList = (List<Member>) o;
-            } else {
-                throw new PersistenceException(PersistenceException.ExceptionType.TypeMisMatch, "Keine Liste vorhanden!");
+            if (!(o instanceof List<?> list)) {
+                throw new PersistenceException(PersistenceException.ExceptionType.TypeMisMatch,
+                        "Das gespeicherte Objekt ist keine Liste!"
+                );
             }
-            ois.close();
-            fis.close();
-        } catch (ClassNotFoundException | IOException e) {
-            throw new PersistenceException(PersistenceException.ExceptionType.TypeMisMatch,
-                    "List ist keine List<Member> !");
+
+//            for (Object element : list) {
+//                if (element instanceof List<?>) {
+//                    memberList = (List<Member>) o;
+//                } else {
+//                    throw new PersistenceException(
+//                            PersistenceException.ExceptionType.TypeMisMatch,
+//                            "Die Liste enthält ungültige Objekte!"
+//                    );
+//                }
+//            }
+
+            return (List<Member>) o;
+
+        } catch (IOException | ClassNotFoundException e) {
+            throw new PersistenceException(
+                    PersistenceException.ExceptionType.ConnectionNotAvailable,
+                    "File Location konnte nicht gefunden werden!"
+            );
         }
-        return memberList;
     }
 }
