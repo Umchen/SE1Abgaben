@@ -1,6 +1,8 @@
 package org.hbrs.se1.ws26.exercises.uebung2;
 
-public class ConcreteMember implements Member, Comparable<Member>{
+import java.io.Serializable;
+
+public class ConcreteMember implements Member, Comparable<Member>, Serializable {
     private final Integer id;
 
     public ConcreteMember(Integer id) {
