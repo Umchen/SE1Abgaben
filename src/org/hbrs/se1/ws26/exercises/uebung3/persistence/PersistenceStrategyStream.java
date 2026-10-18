@@ -1,7 +1,12 @@
 package org.hbrs.se1.ws26.exercises.uebung3.persistence;
-import java.util.List;
+import org.hbrs.se1.ws26.solutions.uebung2.Member;
 
-public class PersistenceStrategyStream<E> implements PersistenceStrategy<E> {
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
+public class PersistenceStrategyStream<Member> implements PersistenceStrategy<Member> {
 
     // URL of file, in which the objects are stored
     private String location = "objects.ser";
@@ -19,8 +24,17 @@ public class PersistenceStrategyStream<E> implements PersistenceStrategy<E> {
      * https://www.digitalocean.com/community/tutorials/objectoutputstream-java-write-object-file
      * (Last Access: Oct, 12th 2026)
      */
-    public void save(List<E> member) throws PersistenceException  {
-
+    public void save(List<Member> member) throws PersistenceException  {
+        try {
+            FileOutputStream fos = new FileOutputStream(location);
+            ObjectOutputStream oos = new ObjectOutputStream(fos);
+            oos.writeObject(member);
+            oos.close();
+            fos.close();
+        } catch (IOException e) {
+            throw new PersistenceException(PersistenceException.ExceptionType.ConnectionNotAvailable,
+                    "File Location konnte nicht gefunden werden!");
+        }
     }
 
     @Override
@@ -29,7 +43,7 @@ public class PersistenceStrategyStream<E> implements PersistenceStrategy<E> {
      * Some coding examples come for free :-)
      * Take also a look at the import statements above ;-!
      */
-    public List<E> load() throws PersistenceException  {
+    public List<Member> load() throws PersistenceException  {
         // Some Coding hints ;-)
 
         // ObjectInputStream ois = null;
@@ -50,6 +64,27 @@ public class PersistenceStrategyStream<E> implements PersistenceStrategy<E> {
         // return newListe
 
         // and finally close the streams
-        return null;
+        List<Member> memberList = new ArrayList<>();
+        ObjectInputStream ois = null;
+        FileInputStream fis = null;
+        try {
+            fis = new FileInputStream(location);
+            ois = new ObjectInputStream(fis);
+        } catch (IOException e) {
+            throw new PersistenceException(PersistenceException.ExceptionType.ConnectionNotAvailable,
+                    "File Location konnte nicht gefunden werden!");
+        }
+
+        try {
+            Object o = ois.readObject();
+
+            if (o instanceof List<?>) {
+                memberList = (List<Member>) o;
+            }
+        } catch (ClassNotFoundException | IOException e) {
+            throw new PersistenceException(PersistenceException.ExceptionType.TypeMisMatch,
+                    "List ist keine List<Member> !");
+        }
+        return memberList;
     }
 }
