@@ -80,7 +80,11 @@ public class PersistenceStrategyStream<Member> implements PersistenceStrategy<Me
 
             if (o instanceof List<?>) {
                 memberList = (List<Member>) o;
+            } else {
+                throw new PersistenceException(PersistenceException.ExceptionType.TypeMisMatch, "Keine Liste vorhanden!");
             }
+            ois.close();
+            fis.close();
         } catch (ClassNotFoundException | IOException e) {
             throw new PersistenceException(PersistenceException.ExceptionType.TypeMisMatch,
                     "List ist keine List<Member> !");
