@@ -10,7 +10,7 @@ public class Main {
 
         try {
             PersistenceStrategyStream<Member> persistenceStrategy = new PersistenceStrategyStream<>();
-            persistenceStrategy.setLocation("src/org/hbrs/se1/ws26/exercises/uebung2");
+            persistenceStrategy.setLocation("src/org/hbrs/se1/ws26/exercises/uebung2/persistentCache.ser");
 
             container.setPersistenceStrategy(persistenceStrategy);
 

@@ -18,6 +18,7 @@ public class ContainerTest {
     @Test
     public void containerTest() {
         container = Container.getInstance();
+        container.deleteAllMembers();
         member1 = new ConcreteMember(0);
         member2 = new ConcreteMember(1);
 
