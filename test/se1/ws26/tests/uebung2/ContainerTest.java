@@ -20,7 +20,7 @@ public class ContainerTest {
 
     @Test
     public void containerTest() {
-        container = new Container();
+        container = Container.getInstance();
         member1 = new ConcreteMember(0);
         member2 = new ConcreteMember(1);
 
