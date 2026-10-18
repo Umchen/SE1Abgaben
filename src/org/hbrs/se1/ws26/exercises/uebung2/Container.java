@@ -25,14 +25,12 @@ public class Container {
     }
 
     public List<Member> getCurrentList() {
-        return memberList;
+        return List.copyOf(memberList);
     }
 
     public void addMember(Member member) throws ContainerException {
         if (getPosition(member.getID(), 0, memberList.size() - 1) != -1) {
-            throw new ContainerException(
-                    "Das Member-Objekt mit der ID " + member.getID() + " ist be-\n" +
-                    "reits vorhanden!");
+            throw new ContainerException("Das Member-Objekt mit der ID " + member.getID() + " ist bereits vorhanden!");
         }
 
         memberList.add(member);
@@ -47,10 +45,6 @@ public class Container {
 
         memberList.remove(pos);
         return "Member-Objekt erfolgreich entfernt!";
-    }
-
-    public void dump() {
-        MemberView.dump(memberList);
     }
 
     public int size() {
@@ -75,9 +69,6 @@ public class Container {
     }
 
     public void setPersistenceStrategy(PersistenceStrategy<Member> persistenceStrategy) throws PersistenceException {
-        if (persistenceStrategy == null) {
-            throw new PersistenceException(NoStrategyIsSet, "Keine gueltige Strategie");
-        }
         this.persistenceStrategy = persistenceStrategy;
     }
 
