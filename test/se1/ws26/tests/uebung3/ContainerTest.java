@@ -16,8 +16,9 @@ class ContainerTest {
     Container container;
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws PersistenceException {
         container = Container.getInstance();
+        container.setPersistenceStrategy(null);
         container.deleteAllMembers();
     }
 
@@ -54,7 +55,7 @@ class ContainerTest {
         // } catch (PersistenceException e) {
             // Bitte auch hier die Message und den ExceptionType prüfen.
         // }
-        assertThrows(PersistenceException.class, () -> container.setPersistenceStrategy(null));
+        assertDoesNotThrow(() -> container.setPersistenceStrategy(null));
 
         PersistenceException p = assertThrows(PersistenceException.class, () -> container.store());
         assertEquals(PersistenceException.ExceptionType.NoStrategyIsSet, p.getExceptionTypeType());
