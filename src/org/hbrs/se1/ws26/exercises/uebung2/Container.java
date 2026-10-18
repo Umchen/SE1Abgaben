@@ -1,13 +1,31 @@
 package org.hbrs.se1.ws26.exercises.uebung2;
 
+import org.hbrs.se1.ws26.exercises.uebung3.persistence.PersistenceException;
+import org.hbrs.se1.ws26.exercises.uebung3.persistence.PersistenceStrategy;
+
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
-public class Container {
-    private ArrayList<Member> memberList;
+import static org.hbrs.se1.ws26.exercises.uebung3.persistence.PersistenceException.ExceptionType.ImplementationNotAvailable;
+import static org.hbrs.se1.ws26.exercises.uebung3.persistence.PersistenceException.ExceptionType.NoStrategyIsSet;
 
-    public Container() {
+public class Container {
+    private static final Container CONTAINER = new Container();
+    private List<Member> memberList;
+    private PersistenceStrategy<Member> persistenceStrategy;
+
+    private Container() {
         memberList = new ArrayList<>();
+    }
+
+    public static Container getInstance() {
+        return CONTAINER;
+    }
+
+    public List<Member> getCurrentList() {
+        return memberList;
     }
 
     public void addMember(Member member) throws ContainerException {
@@ -32,9 +50,7 @@ public class Container {
     }
 
     public void dump() {
-        for (Member member : memberList) {
-            System.out.println(member);
-        }
+        MemberView.dump(memberList);
     }
 
     public int size() {
@@ -56,5 +72,39 @@ public class Container {
         }
 
         return getPosition(searchedId, pos + 1, right);
+    }
+
+    public void setPersistenceStrategy(PersistenceStrategy<Member> persistenceStrategy) throws PersistenceException {
+        if (persistenceStrategy == null) {
+            throw new PersistenceException(NoStrategyIsSet, "Keine gueltige Strategie");
+        }
+        this.persistenceStrategy = persistenceStrategy;
+    }
+
+    public void store() throws PersistenceException {
+        if (persistenceStrategy == null) {
+            throw new PersistenceException(NoStrategyIsSet, "Keine PersistenceStrategy vorhanden!");
+        }
+
+        try {
+            persistenceStrategy.save(memberList);
+        } catch (UnsupportedOperationException e) {
+            throw new PersistenceException(ImplementationNotAvailable, e.getMessage());
+        }
+    }
+
+    public void load() throws PersistenceException {
+        if (persistenceStrategy == null) {
+            throw new PersistenceException(NoStrategyIsSet, "Keine PersistenceStrategy vorhanden!");
+        }
+        try {
+            memberList = persistenceStrategy.load();
+        } catch (UnsupportedOperationException e) {
+            throw new PersistenceException(ImplementationNotAvailable, e.getMessage());
+        }
+    }
+
+    public void deleteAllMembers() {
+        memberList.clear();
     }
 }
