@@ -90,7 +90,7 @@ class ContainerTest {
 //             assertEquals();
 //         }
         PersistenceStrategyStream<Member> strat = new PersistenceStrategyStream<>();
-        strat.setLocation("/Users/saschaalda/tmp");
+        strat.setLocation("test");
 
         assertDoesNotThrow(() -> container.setPersistenceStrategy(strat));
 
