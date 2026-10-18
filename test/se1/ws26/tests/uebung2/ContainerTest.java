@@ -1,9 +1,6 @@
 package se1.ws26.tests.uebung2;
 
-import org.hbrs.se1.ws26.exercises.uebung2.ConcreteMember;
-import org.hbrs.se1.ws26.exercises.uebung2.Container;
-import org.hbrs.se1.ws26.exercises.uebung2.ContainerException;
-import org.hbrs.se1.ws26.exercises.uebung2.Member;
+import org.hbrs.se1.ws26.exercises.uebung2.*;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -33,7 +30,7 @@ public class ContainerTest {
         assertDoesNotThrow(() -> container.addMember(member2));
 
         String expected = "Member (ID = 0)" + System.lineSeparator() + "Member (ID = 1)" + System.lineSeparator();
-        container.dump();
+        MemberView.dump(container.getCurrentList());
 
         assertEquals(expected, output.toString());
         output.reset();
@@ -49,7 +46,7 @@ public class ContainerTest {
 
         assertEquals("Member-Objekt mit der ID " + "0" + " existiert nicht!", container.deleteMember(0));
 
-        container.dump();
+        MemberView.dump(container.getCurrentList());
 
         assertEquals("", output.toString());
     }
