@@ -2,9 +2,8 @@ package org.hbrs.se1.ws26.exercises.uebung2;
 
 import org.hbrs.se1.ws26.exercises.uebung3.persistence.PersistenceException;
 import org.hbrs.se1.ws26.exercises.uebung3.persistence.PersistenceStrategy;
-
-import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
@@ -34,7 +33,7 @@ public class Container {
         }
 
         memberList.add(member);
-        memberList.sort(null);
+        memberList.sort(Comparator.comparing(Member::getID));
     }
 
     public String deleteMember(Integer id) {
