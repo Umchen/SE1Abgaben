@@ -5,16 +5,16 @@ import java.util.List;
 public class Ausgabe {
     public static void Dump(List<UserStory> stories) {
 
-        System.out.println("ID | Titel | Projekt | Akzeptanzkriterien | Prio");
+        System.out.printf("%-5s %-20s %-20s %-25s %-10s%n",
+                "ID", "Titel", "Projekt", "Akzeptanzkriterien", "Prio");
+
         stories.stream()
                 .sorted((s1, s2) -> Double.compare(s2.getPrio(), s1.getPrio()))
-                .forEach(s -> {
-                    System.out.println(s.getId() + " | " +
-                            s.getTitel() + " | " +
-                            s.getProject() + " | " +
-                            s.getAcceptCriteria() + " | " +
-                            s.getPrio());
-                    System.out.println("-----------------------");
-                });
+                .forEach(s -> System.out.printf("%-5d %-20s %-20s %-25s %-10.2f%n",
+                        s.getId(),
+                        s.getTitel(),
+                        s.getProject(),
+                        s.getAcceptCriteria(),
+                        s.getPrio()));
     }
 }
