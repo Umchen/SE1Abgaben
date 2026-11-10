@@ -30,7 +30,7 @@ import java.util.Scanner;
 public class Container {
 	 
 	// Interne ArrayList zur Abspeicherung der Objekte vom Type UserStory
-	private List<UserStory> liste = null;
+	private List<UserStory> liste;
 	
 	// Statische Klassen-Variable, um die Referenz
 	// auf das einzige Container-Objekt abzuspeichern
@@ -55,7 +55,7 @@ public class Container {
 	 *
 	 */
 	private Container(){
-		liste = new ArrayList<UserStory>();
+		liste = new ArrayList<>();
 	}
 	
 	/**
@@ -78,7 +78,7 @@ public class Container {
 	 * Das entlastet den Entwickler zur Entwicklungszeit und den Endanwender zur Laufzeit
 	 */
 	public void startEingabe() throws Exception {
-		String strInput = null;
+		String strInput;
 		
 		// Initialisierung des Eingabe-View
 		Scanner scanner = new Scanner( System.in );
@@ -113,21 +113,25 @@ public class Container {
 			else if (strings[0].equalsIgnoreCase("exit")) return;
 
 			else if ( strings[0].equalsIgnoreCase("enter") ) {
-				String titel = strings[1];
-				int id = Integer.parseInt(strings[2]);
-				int value = Integer.parseInt(strings[3]);
-				int penalty = Integer.parseInt(strings[4]);
-				int expenses = Integer.parseInt(strings[5]);
-				int risk = Integer.parseInt(strings[6]);
-				String project = strings[7];
-				String acceptCriteria = "";
-				for (int i = 8; i < strings.length; i++) {
-					acceptCriteria += strings[i] + " ";
+				try {
+					String titel = strings[1];
+					int id = Integer.parseInt(strings[2]);
+					int value = Integer.parseInt(strings[3]);
+					int penalty = Integer.parseInt(strings[4]);
+					int expenses = Integer.parseInt(strings[5]);
+					int risk = Integer.parseInt(strings[6]);
+					String project = strings[7];
+					String acceptCriteria = "";
+					for (int i = 8; i < strings.length; i++) {
+						acceptCriteria += strings[i] + " ";
+					}
+					double prio = Prio.calculate(value, penalty, expenses, risk);
+					UserStory userStory = new UserStory(id, titel,prio,project,acceptCriteria);
+					this.addUserStory(userStory);
+					System.out.println("User Story wurde gespeichert.");
+				} catch (Exception e) {
+					System.out.println("Eingabe konnte nicht verarbeitet werden!");
 				}
-				double prio = Prio.calculate(value, penalty, expenses, risk);
-				UserStory userStory = new UserStory(id, titel,prio,project,acceptCriteria);
-				this.addUserStory(userStory);
-				System.out.println("User Story wurde gespeichert.");
 			}
 								
 			else if (strings[0].equalsIgnoreCase("store")  ) {
@@ -167,10 +171,6 @@ public class Container {
 	 * 
 	 */
 	public void load() {
-		if (liste.isEmpty()) {
-			System.out.println("Keine User Stories vorhanden zum Laden!");
-			return;
-		}
 		try {
 			liste = persistenceStrategy.load();
 			System.out.println("Daten konnten erfolgreich geladen werden!");

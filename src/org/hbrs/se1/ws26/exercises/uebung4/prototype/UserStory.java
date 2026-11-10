@@ -1,6 +1,8 @@
 package org.hbrs.se1.ws26.exercises.uebung4.prototype;
 
-    public class UserStory  {
+import java.io.Serializable;
+
+public class UserStory implements Serializable {
 
         private String titel;
         private int id = 0;
