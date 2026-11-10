@@ -1,21 +1,18 @@
 package org.hbrs.se1.ws26.exercises.uebung4.prototype;
 
-import java.io.FileOutputStream;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import org.hbrs.se1.ws26.exercises.uebung3.persistence.PersistenceException;
+import org.hbrs.se1.ws26.exercises.uebung3.persistence.PersistenceStrategy;
+import org.hbrs.se1.ws26.exercises.uebung3.persistence.PersistenceStrategyStream;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Scanner;
-import java.util.stream.Collectors;
 
 /*
  * Klasse zum Management sowie zur Eingabe unnd Ausgabe von User-Stories.
  * Die Anwendung wird über dies Klasse auch gestartet (main-Methode hier vorhanden)
  *
  * erstellt von Julius P., H-BRS 2026, Version 1.3
+ * modifiziert von Umar Jamil,
  *
  * Strategie für die Wiederverwendung (Reuse):
  * - Anlegen der Klasse UserStory
@@ -38,12 +35,12 @@ public class Container {
 	// Statische Klassen-Variable, um die Referenz
 	// auf das einzige Container-Objekt abzuspeichern
 	// Diese Variante sei thread-safe, so hat Hr. P. es gehört... stimmt das?
-	// Todo: Bewertung Thread-Safeness (F1)
-	// Todo: Bewertung Speicherbedarf (F1)
-	private static Container instance = new Container();
+	private static final Container instance = new Container();
 	
 	// URL der Datei, in der die Objekte gespeichert werden 
 	final static String LOCATION = "allStories.ser";
+	private final PersistenceStrategy<UserStory> persistenceStrategy =
+			new PersistenceStrategyStream<>(LOCATION);
 
 	/**
 	 * Liefert ein Singleton zurück.
@@ -57,7 +54,7 @@ public class Container {
 	 * Vorschriftsmäßiges Ueberschreiben des Konstruktors (private) gemaess Singleton-Pattern (oder?)
 	 *
 	 */
-	Container(){
+	private Container(){
 		liste = new ArrayList<UserStory>();
 	}
 	
@@ -65,10 +62,14 @@ public class Container {
 	 * Start-Methoden zum Starten des Programms 
 	 * (hier koennen ggf. weitere Initialisierungsarbeiten gemacht werden spaeter)
 	 */
-	public static void main (String[] args) throws Exception {
-		// ToDo: Bewertung Exception-Handling (F3, F7)
+	public static void main (String[] args) {
 		Container con = Container.getInstance();
-		con.startEingabe(); 
+
+		try {
+			con.startEingabe();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	/*
@@ -80,13 +81,10 @@ public class Container {
 		String strInput = null;
 		
 		// Initialisierung des Eingabe-View
-		// ToDo: Funktionsweise des Scanners erklären (F3)
 		Scanner scanner = new Scanner( System.in );
+		System.out.println("Tool fuer Eingabe von User Stories V 1.4");
 
-		while ( true ) {
-			// Ausgabe eines Texts zur Begruessung
-			System.out.println("UserStory-Tool V1.3 by Julius P. (dedicated to all my friends)");
-
+		while (true) {
 			System.out.print( "> "  );
 			strInput = scanner.nextLine();
 		
@@ -95,54 +93,54 @@ public class Container {
 
 			// 	Falls 'help' eingegeben wurde, werden alle Befehle ausgedruckt
 			if ( strings[0].equals("help") ) {
-				System.out.println("Folgende Befehle stehen zur Verfuegung: help, dump....");
+				System.out.println("enter: Eingabe von User Story mit folgendem Pattern:");
+				System.out.println("Titel(String) ID(int) Mehrwert(int) Strafe(int) " +
+						"Aufwand(int) Risiko(int) Projektname(String) Akzeptanzkriterium(Abfolge von Strings)");
+				System.out.println("Beispiel 12345 1 4 3 6 Beispielprojekt " +
+						"Die User Story ist fertig, wenn sie fertig ist!\n");
+				System.out.println("store: Persistieren von User Stories");
+				System.out.println("load: Laden von User Stories aus einer .ser Datei");
+				System.out.println("dump: Gibt eine sortierte Tabelle von User Stories aus");
+				System.out.println("exit: Terminiert das Programm");
+				System.out.println("help: Zeigt diese Ausgabe an :)");
 			}
+
 			// Auswahl der bisher implementierten Befehle:
-			if ( strings[0].equals("dump") ) {
-				startAusgabe();
+			else if ( strings[0].equalsIgnoreCase("dump") ) {
+				Ausgabe.Dump(List.copyOf(liste));
 			}
-			// Auswahl der bisher implementierten Befehle:
-			if ( strings[0].equals("enter") ) {
-				// Daten einlesen ... (Ihre Aufgabe!)
-				// this.addUserStory( new UserStory( data ) ) um das Objekt in die Liste einzufügen.
+
+			else if (strings[0].equalsIgnoreCase("exit")) return;
+
+			else if ( strings[0].equalsIgnoreCase("enter") ) {
+				String titel = strings[1];
+				int id = Integer.parseInt(strings[2]);
+				int value = Integer.parseInt(strings[3]);
+				int penalty = Integer.parseInt(strings[4]);
+				int expenses = Integer.parseInt(strings[5]);
+				int risk = Integer.parseInt(strings[6]);
+				String project = strings[7];
+				String acceptCriteria = "";
+				for (int i = 8; i < strings.length; i++) {
+					acceptCriteria += strings[i] + " ";
+				}
+				double prio = Prio.calculate(value, penalty, expenses, risk);
+				UserStory userStory = new UserStory(id, titel,prio,project,acceptCriteria);
+				this.addUserStory(userStory);
+				System.out.println("User Story wurde gespeichert.");
 			}
 								
-			if (  strings[0].equals("store")  ) {
-				// Beispiel-Code zum Anlegen und Speichern einer UserStory:
-				UserStory userStory = new UserStory();
-				userStory.setId(23);
-				this.addUserStory(userStory);
+			else if (strings[0].equalsIgnoreCase("store")  ) {
 				this.store();
-
             }
 
-		} // Ende der Schleife
-	}
-
-	/**
-	 * Diese Methode realisiert die Ausgabe.
-	 */
-	public void startAusgabe() {
-		// Hier möchte Herr P. die Liste mit einem eigenen Sortieralgorithmus sortieren und dann
-		// ausgeben. Allerdings weiss der Student hier nicht weiter!
-
-		// [Sortierung ausgelassen]
-		// Todo: Implementierung Sortierung (F4)
-
-		// Klassische Ausgabe ueber eine For-Each-Schleife
-		for (UserStory story : liste) {
-			System.out.println(story.toString());
+			else if (strings[0].equalsIgnoreCase("load")) {
+				this.load();
+			}
+			else {
+				System.out.println("Befehl wurde nicht erkannt, rufe help auf, um eine Liste der Befehle zu erhalten");
+			}
 		}
-
-		//  [Variante mit forEach-Methode / Streams (--> Lösung Übung Nr. 2)?
-		//  Gerne auch mit Beachtung der neuen US1
-		//  (Filterung Projekt = "ein Wert (z.B. Coll@HBRS)" und z.B. Prio >=3
-		//  Todo: Implementierung Filterung mit Lambda (F5)
-
-		String project = "Coll@HBRS";
-		// ToDo: Filterung nach einem Projekt (F5)
-
-
 	}
 
 	/*
@@ -151,20 +149,15 @@ public class Container {
 	 * 
 	 */
 	public void store() throws ContainerException {
-		ObjectOutputStream oos = null;
-		FileOutputStream fos = null;
-		try {
-			fos = new FileOutputStream( Container.LOCATION );
-			oos = new ObjectOutputStream(fos);
-
-			oos.writeObject( this.liste );
-			System.out.println( this.size() + " UserStory wurden erfolgreich gespeichert!");
+		if (liste.isEmpty()) {
+			System.out.println("Keine User Stories vorhanden zum Speichern!");
+			return;
 		}
-		catch (IOException e) {
-			e.printStackTrace(); // sollte man auskommentieren.
-		  //  Delegation in den aufrufendem Context
-		  // (Anwendung Pattern "Chain Of Responsibility)
-		  throw new ContainerException("Fehler beim Abspeichern");
+		try {
+			persistenceStrategy.save(liste);
+			System.out.println(this.size() + " User Stories wurden erfolgreich gespeichert!");
+		} catch (PersistenceException e) {
+			throw new ContainerException("Fehler beim Abspeichern!");
 		}
 	}
 
@@ -174,28 +167,15 @@ public class Container {
 	 * 
 	 */
 	public void load() {
-		ObjectInputStream ois = null;
-		FileInputStream fis = null;
+		if (liste.isEmpty()) {
+			System.out.println("Keine User Stories vorhanden zum Laden!");
+			return;
+		}
 		try {
-		  fis = new FileInputStream( Container.LOCATION );
-		  ois = new ObjectInputStream(fis);
-
-		  // Auslesen der Liste
-		  Object obj = ois.readObject();
-		  if (obj instanceof List<?>) {
-			  this.liste = (List) obj;
-		  }
-		  System.out.println("Es wurden " + this.size() + " UserStory erfolgreich reingeladen!");
-		}
-		catch (IOException e) {
-			System.out.println("LOG (für Admin): Datei konnte nicht gefunden werden!");
-		}
-		catch (ClassNotFoundException e) {
-			System.out.println("LOG (für Admin): Liste konnte nicht extrahiert werden (ClassNotFound)!");
-		}
-		finally {
-		  if (ois != null) try { ois.close(); } catch (IOException e) {}
-		  if (fis != null) try { fis.close(); } catch (IOException e) {}
+			liste = persistenceStrategy.load();
+			System.out.println("Daten konnten erfolgreich geladen werden!");
+		} catch (PersistenceException e) {
+			System.out.println("Liste konnte nicht geladen werden!");
 		}
 	}
 
@@ -205,9 +185,8 @@ public class Container {
 	 * @throws ContainerException
 	 */
 	public void addUserStory ( UserStory userStory ) throws ContainerException {
-		if ( contains(userStory) == true ) {
-			ContainerException ex = new ContainerException("ID bereits vorhanden!");
-			throw ex;
+		if (contains(userStory)) {
+            throw new ContainerException("ID bereits vorhanden!");
 		}
 		liste.add(userStory);
 	}

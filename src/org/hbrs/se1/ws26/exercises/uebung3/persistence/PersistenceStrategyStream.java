@@ -6,10 +6,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class PersistenceStrategyStream<Member> implements PersistenceStrategy<Member> {
+public class PersistenceStrategyStream<E> implements PersistenceStrategy<E> {
 
     // URL of file, in which the objects are stored
     private String location = "objects.ser";
+
+    public PersistenceStrategyStream(String location) {
+        this.location = location;
+    }
+    public PersistenceStrategyStream() {}
+
+    public String getLocation() {
+        return location;
+    }
 
     // Backdoor method used only for testing purposes, if the location should be changed in a Unit-Test
     // Example: Location is a directory (Streams do not like directories, so try this out ;-)!
@@ -24,7 +33,7 @@ public class PersistenceStrategyStream<Member> implements PersistenceStrategy<Me
      * https://www.digitalocean.com/community/tutorials/objectoutputstream-java-write-object-file
      * (Last Access: Oct, 12th 2026)
      */
-    public void save(List<Member> member) throws PersistenceException  {
+    public void save(List<E> member) throws PersistenceException  {
         try (FileOutputStream fos = new FileOutputStream(location);
              ObjectOutputStream oos = new ObjectOutputStream(fos)) {
             oos.writeObject(member);
@@ -40,28 +49,7 @@ public class PersistenceStrategyStream<Member> implements PersistenceStrategy<Me
      * Some coding examples come for free :-)
      * Take also a look at the import statements above ;-!
      */
-    public List<Member> load() throws PersistenceException  {
-        // Some Coding hints ;-)
-
-        // ObjectInputStream ois = null;
-        // FileInputStream fis = null;
-        // List<...> newListe =  null;
-        //
-        // Initiating the Stream (can also be moved to method openConnection()... ;-)
-        // fis = new FileInputStream( " a location to a file" );
-
-        // Tipp: Use a directory (ends with "/") to implement a negative test case ;-)
-        // ois = new ObjectInputStream(fis);
-
-        // Reading and extracting the list (try .. catch ommitted here)
-        // Object obj = ois.readObject();
-
-        // if (obj instanceof List<?>) {
-        //       newListe = (List) obj;
-        // return newListe
-
-        // and finally close the streams
-
+    public List<E> load() throws PersistenceException  {
         try (ObjectInputStream ois =
                      new ObjectInputStream(new FileInputStream(location))) {
             Object o = ois.readObject();
@@ -71,19 +59,7 @@ public class PersistenceStrategyStream<Member> implements PersistenceStrategy<Me
                         "Das gespeicherte Objekt ist keine Liste!"
                 );
             }
-
-//            for (Object element : list) {
-//                if (element instanceof List<?>) {
-//                    memberList = (List<Member>) o;
-//                } else {
-//                    throw new PersistenceException(
-//                            PersistenceException.ExceptionType.TypeMisMatch,
-//                            "Die Liste enthält ungültige Objekte!"
-//                    );
-//                }
-//            }
-
-            return (List<Member>) o;
+            return (List<E>) o;
 
         } catch (IOException | ClassNotFoundException e) {
             throw new PersistenceException(

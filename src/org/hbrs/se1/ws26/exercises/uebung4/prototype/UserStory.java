@@ -1,14 +1,12 @@
 package org.hbrs.se1.ws26.exercises.uebung4.prototype;
 
     public class UserStory  {
-        // ToDo: Sind die Attribute der Klasse UserStory vollständig?
-        //  Wie sieht es mit den
-        //  Sichtbarkeiten aus? (F4)
 
         private String titel;
-        int id = 0;
-        double prio = 0.0;
-        String project;
+        private int id = 0;
+        private double prio = 0.0;
+        private String project;
+        private String acceptCriteria;
 
         public String getProject() {
             return project;
@@ -18,10 +16,12 @@ package org.hbrs.se1.ws26.exercises.uebung4.prototype;
             this.project = project;
         }
 
-        public UserStory(int id, String titel, double prio) {
+        public UserStory(int id, String titel, double prio, String project, String acceptCriteria) {
             this.id = id;
             this.titel = titel;
             this.prio = prio;
+            this.project = project;
+            this.acceptCriteria = acceptCriteria;
         }
 
         public UserStory() {
@@ -51,6 +51,13 @@ package org.hbrs.se1.ws26.exercises.uebung4.prototype;
             this.id = id;
         }
 
+        public String getAcceptCriteria() {
+            return acceptCriteria;
+        }
+
+        public void setAcceptCriteria(String acceptCriteria) {
+            this.acceptCriteria = acceptCriteria;
+        }
     }
 
 
